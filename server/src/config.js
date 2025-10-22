@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const dotenv = require('dotenv');
+const crypto = require('crypto');
 
 let cachedConfig;
 
@@ -36,29 +37,66 @@ function normalizeMultiline(value) {
   return value.includes('\\n') ? value.replace(/\\n/g, '\n') : value;
 }
 
-function parsePrivateKey(rawValue) {
-  if (!rawValue) {
-    return rawValue;
-  }
+function buildKeyAttempts(normalized) {
+  const attempts = [];
 
-  const normalized = normalizeMultiline(rawValue).trim();
-
+  // Direct PEM input.
   if (normalized.includes('-----BEGIN')) {
-    return normalized;
+    attempts.push({ key: normalized, format: 'pem' });
+    return attempts;
   }
 
   const compact = normalized.replace(/\s+/g, '');
 
-  try {
-    const decoded = Buffer.from(compact, 'base64').toString('utf8').trim();
-    if (decoded && decoded.includes('-----BEGIN')) {
-      return decoded;
-    }
-  } catch (error) {
-    // fall through to throw below
+  if (!compact) {
+    return attempts;
   }
 
-  throw new Error('VALIDME_PRIVATE_KEY must be a PEM string or base64-encoded PEM.');
+  let decoded;
+  try {
+    decoded = Buffer.from(compact, 'base64');
+  } catch (error) {
+    return attempts;
+  }
+
+  if (!decoded || decoded.length === 0) {
+    return attempts;
+  }
+
+  const asUtf8 = decoded.toString('utf8').trim();
+
+  if (asUtf8.includes('-----BEGIN')) {
+    attempts.push({ key: asUtf8, format: 'pem' });
+  }
+
+  // Support DER encoded keys (PKCS#1 or PKCS#8) that were base64-wrapped.
+  attempts.push({ key: decoded, format: 'der', type: 'pkcs1' });
+  attempts.push({ key: decoded, format: 'der', type: 'pkcs8' });
+
+  return attempts;
+}
+
+function parsePrivateKey(rawValue) {
+  if (!rawValue) {
+    throw new Error('VALIDME_PRIVATE_KEY is empty.');
+  }
+
+  const normalized = normalizeMultiline(rawValue).trim();
+  const attempts = buildKeyAttempts(normalized);
+
+  for (const attempt of attempts) {
+    try {
+      return crypto.createPrivateKey({
+        key: attempt.key,
+        format: attempt.format,
+        type: attempt.type,
+      });
+    } catch (error) {
+      // try next
+    }
+  }
+
+  throw new Error('VALIDME_PRIVATE_KEY must be provided in PEM format or base64-wrapped PEM/DER.');
 }
 
 function getConfig() {
