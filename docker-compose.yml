@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: ./server
+    image: ovopay-utils:latest
+    container_name: ovopay-utils-api
+    env_file:
+      - ./.env
+    ports:
+      - "3000:3000"
+    restart: unless-stopped

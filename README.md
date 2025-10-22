@@ -90,32 +90,27 @@ pm2 unstartup   # remove any startup hooks
 
 Verify nothing is listening on port 3000 (`sudo lsof -i :3000`) before moving on.
 
-### 3. Build and run the Docker image
+### 3. Build and run the Docker image with Compose
 
-From the project root:
-
-```bash
-cd server
-docker build -t ovopay-utils .
-```
-
-Copy `.env.example` to `.env` at the repository root and fill in the secrets if you have not already:
+Copy `.env.example` to `.env` at the repository root (if you have not already) and populate the secrets:
 
 ```bash
-cp ../.env.example ../.env
-# edit ../.env with your values
+cp .env.example .env
+# edit .env with your values
 ```
 
-Run the container with the env file and expose it on port 3000 (matching the nginx config):
+From the repository root, use Docker Compose to build and launch the API:
 
 ```bash
-docker run \
-  --name ovopay-utils \
-  --restart unless-stopped \
-  --env-file ../.env \
-  -p 3000:3000 \
-  -d ovopay-utils
+docker compose up -d --build
 ```
+
+Helpful lifecycle commands:
+
+- View logs: `docker compose logs -f api`
+- Restart the API: `docker compose restart api`
+- Stop the API: `docker compose stop api`
+- Remove the container: `docker compose down`
 
 ### 4. Configure nginx
 
@@ -161,4 +156,4 @@ curl -I http://localhost:3000/healthz
 curl -I https://utils.ovopay.digital/healthz
 ```
 
-You should receive `200 OK` responses with JSON `{"status":"ok"}`. Rotate the container with `docker restart ovopay-utils` whenever you deploy an update.
+You should receive `200 OK` responses with JSON `{"status":"ok"}`. Rotate the container with `docker compose restart api` whenever you deploy an update.
