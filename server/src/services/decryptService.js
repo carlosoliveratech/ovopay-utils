@@ -5,10 +5,11 @@ const { createError, AppError } = require('../errors');
 const { isPrivateAddress } = require('../utils/ip');
 const { detectMime } = require('../utils/mime');
 const { isLikelyBase64Chunk } = require('../utils/base64');
-const { decryptBlock, RSA_BLOCK_SIZE } = require('../utils/crypto');
+const { decryptBlock, decryptBuffer, RSA_BLOCK_SIZE } = require('../utils/crypto');
 
 const MAX_BASE64_BYTES = 25 * 1024 * 1024; // 25MB safety guard for base64 payloads.
 const PRELUDE_INSPECTION_BYTES = 4096;
+const BASE64_PAYLOAD_REGEX = /^[A-Za-z0-9+/]+={0,2}$/;
 
 function parseAndValidateUrl(urlString) {
   let parsed;
@@ -282,6 +283,22 @@ async function decryptEncryptedStream({ sourceStream, res, privateKey, contentTy
   }
 }
 
+function decodeEncryptedStringToBuffer(encryptedString) {
+  const sanitized = encryptedString.replace(/\s/g, '');
+
+  if (!sanitized || sanitized.length % 4 !== 0 || !BASE64_PAYLOAD_REGEX.test(sanitized)) {
+    throw createError('INVALID_BASE64', 'Encrypted payload is not valid base64.', 422);
+  }
+
+  const buffer = Buffer.from(sanitized, 'base64');
+
+  if (buffer.length === 0) {
+    throw createError('INVALID_ENCRYPTED_PAYLOAD', 'Encrypted payload is empty.', 422);
+  }
+
+  return buffer;
+}
+
 async function handleDecryptImage({ imageUrl, res, privateKey }) {
   const url = parseAndValidateUrl(imageUrl);
   await assertPublicHostname(url);
@@ -294,10 +311,23 @@ async function handleDecryptImage({ imageUrl, res, privateKey }) {
   });
 }
 
+async function handleDecryptData({ encryptedData, privateKey }) {
+  try {
+    const buffer = decodeEncryptedStringToBuffer(encryptedData);
+    return decryptBuffer(buffer, privateKey);
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    throw createError('DECRYPTION_FAILED', error.message, 422, { cause: error });
+  }
+}
+
 module.exports = {
   parseAndValidateUrl,
   assertPublicHostname,
   downloadEncryptedResource,
   decryptEncryptedStream,
   handleDecryptImage,
+  handleDecryptData,
 };

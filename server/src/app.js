@@ -1,7 +1,8 @@
 const express = require('express');
 const { getConfig } = require('./config');
 const rateLimiter = require('./middleware/rateLimiter');
-const decryptRouter = require('./routes/decrypt');
+const decryptImageRouter = require('./routes/decryptImage');
+const decryptDataRouter = require('./routes/decryptData');
 const healthRouter = require('./routes/health');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
@@ -24,7 +25,8 @@ function createApp() {
   );
 
   app.use('/healthz', healthRouter);
-  app.use('/api/decrypt-image', decryptRouter);
+  app.use('/api/decrypt-image', decryptImageRouter);
+  app.use('/api/decrypt-data', decryptDataRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

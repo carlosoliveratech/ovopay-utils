@@ -91,6 +91,28 @@ function createMockResponse() {
   };
 }
 
+function createJsonResponse() {
+  return {
+    statusCode: 200,
+    headers: {},
+    body: undefined,
+    ended: false,
+    status(code) {
+      this.statusCode = code;
+      return this;
+    },
+    setHeader(name, value) {
+      this.headers[name.toLowerCase()] = value;
+      return this;
+    },
+    json(payload) {
+      this.body = payload;
+      this.ended = true;
+      return this;
+    },
+  };
+}
+
 function clearModuleCache() {
   ['../src/config', '../src/controllers/decryptController', '../src/services/decryptService'].forEach(
     (relativePath) => {
@@ -230,5 +252,75 @@ describe('decryptImage controller', () => {
     const req = { body: { imageURL: `https://${HOST_INVALID}/invalid` } };
 
     await expect(decryptImage(req, res)).rejects.toBeInstanceOf(AppError);
+  });
+});
+
+describe('decryptData controller', () => {
+  beforeAll(() => {
+    nock.disableNetConnect();
+  });
+
+  afterAll(() => {
+    nock.enableNetConnect();
+  });
+
+  beforeEach(() => {
+    process.env.VALIDME_PRIVATE_KEY = SAMPLE_PRIVATE_KEY;
+    process.env.API_RATE_LIMIT = '1000';
+    delete process.env.API_RATE_WINDOW_MS;
+
+    clearModuleCache();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test('decrypts JSON payload and returns decrypted string', async () => {
+    const plaintext = JSON.stringify({ hello: 'world', ok: true });
+    const encrypted = rsaEncrypt(Buffer.from(plaintext, 'utf8'));
+    const base64 = encrypted.toString('base64');
+
+    const { decryptData } = require('../src/controllers/decryptController');
+    const res = createJsonResponse();
+    const req = { body: { data: base64 } };
+
+    await decryptData(req, res);
+
+    expect(res.ended).toBe(true);
+    expect(res.body).toEqual({ data: plaintext });
+  });
+
+  test('rejects missing data field', async () => {
+    const { decryptData } = require('../src/controllers/decryptController');
+    const res = createJsonResponse();
+    const req = { body: {} };
+
+    await expect(decryptData(req, res)).rejects.toMatchObject({
+      code: 'INVALID_PAYLOAD',
+    });
+  });
+
+  test('rejects invalid base64 payload', async () => {
+    const { decryptData } = require('../src/controllers/decryptController');
+    const res = createJsonResponse();
+    const req = { body: { data: 'invalid-base64' } };
+
+    await expect(decryptData(req, res)).rejects.toMatchObject({
+      code: 'INVALID_BASE64',
+    });
+  });
+
+  test('rejects payload with incorrect block size', async () => {
+    const random = crypto.randomBytes(32); // 32 bytes -> 256 bits, base64 convert => not multiple 256 when decrypted
+    const invalidBase64 = random.toString('base64');
+
+    const { decryptData } = require('../src/controllers/decryptController');
+    const res = createJsonResponse();
+    const req = { body: { data: invalidBase64 } };
+
+    await expect(decryptData(req, res)).rejects.toMatchObject({
+      code: 'INVALID_ENCRYPTED_SIZE',
+    });
   });
 });

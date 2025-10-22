@@ -1,6 +1,6 @@
 # Ovopay Utility Server
 
-This project exposes utility APIs for OvoPay applications. The current release provides an RSA-based image decryption service that streams decrypted binary responses and a lightweight health probe endpoint.
+This project exposes utility APIs for OvoPay applications. The current release provides RSA-based decryption utilities for binary images and structured JSON payloads, plus a lightweight health probe endpoint.
 
 ## Prerequisites
 
@@ -40,6 +40,21 @@ Behaviour:
 2. Streams the encrypted file, attempting RSA OAEP decryption per 256-byte block (fallback to PKCS#1 v1.5).
 3. Responds with decrypted binary data and best-effort content type detection.
 4. Returns structured errors with `{ code, message }` on validation, download, or decryption failures.
+
+### `POST /api/decrypt-data`
+
+Request body:
+
+```json
+{ "data": "BASE64_ENCRYPTED_STRING" }
+```
+
+Behaviour:
+
+1. Validates the encrypted string, expecting base64 text whose RSA blocks are 256 bytes.
+2. Decrypts each block with RSA OAEP padding (fallback to PKCS#1 v1.5).
+3. Returns JSON containing the decrypted UTF-8 string: `{ "data": "<decrypted-json-string>" }`.
+4. Produces structured errors on validation or decryption failures (`INVALID_PAYLOAD`, `INVALID_BASE64`, `INVALID_ENCRYPTED_SIZE`, `DECRYPTION_FAILED`).
 
 ### `GET /healthz`
 
