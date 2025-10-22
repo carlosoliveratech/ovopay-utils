@@ -24,6 +24,15 @@ function createApp() {
     })
   );
 
+  app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+      const ms = Date.now() - start;
+      console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} -> ${res.statusCode} (${ms}ms)`);
+    });
+    next();
+  });
+
   app.use('/healthz', healthRouter);
   app.use('/api/decrypt-image', decryptImageRouter);
   app.use('/api/decrypt-data', decryptDataRouter);
