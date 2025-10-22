@@ -36,6 +36,31 @@ function normalizeMultiline(value) {
   return value.includes('\\n') ? value.replace(/\\n/g, '\n') : value;
 }
 
+function parsePrivateKey(rawValue) {
+  if (!rawValue) {
+    return rawValue;
+  }
+
+  const normalized = normalizeMultiline(rawValue).trim();
+
+  if (normalized.includes('-----BEGIN')) {
+    return normalized;
+  }
+
+  const compact = normalized.replace(/\s+/g, '');
+
+  try {
+    const decoded = Buffer.from(compact, 'base64').toString('utf8').trim();
+    if (decoded && decoded.includes('-----BEGIN')) {
+      return decoded;
+    }
+  } catch (error) {
+    // fall through to throw below
+  }
+
+  throw new Error('VALIDME_PRIVATE_KEY must be a PEM string or base64-encoded PEM.');
+}
+
 function getConfig() {
   if (cachedConfig) {
     return cachedConfig;
@@ -57,7 +82,7 @@ function getConfig() {
     port: parseInt(process.env.PORT || '3000', 10),
     supabaseUrl: process.env.VITE_SUPABASE_URL,
     supabaseAnonKey: process.env.VITE_SUPABASE_ANON_KEY,
-    privateKey: normalizeMultiline(process.env.VALIDME_PRIVATE_KEY).trim(),
+    privateKey: parsePrivateKey(process.env.VALIDME_PRIVATE_KEY),
     apiRateLimit: Number.isFinite(apiRateLimit) && apiRateLimit > 0 ? apiRateLimit : 100,
     apiRateWindowMs: Number.isFinite(apiRateWindowMs) && apiRateWindowMs > 0 ? apiRateWindowMs : 60000,
   };
