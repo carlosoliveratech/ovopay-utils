@@ -57,7 +57,8 @@ function getConfig() {
     port: parseInt(process.env.PORT || '3000', 10),
     supabaseUrl: process.env.VITE_SUPABASE_URL,
     supabaseAnonKey: process.env.VITE_SUPABASE_ANON_KEY,
-    privateKey: normalizeMultiline(process.env.VALIDME_PRIVATE_KEY).trim(),
+    //privateKey: normalizeMultiline(process.env.VALIDME_PRIVATE_KEY).trim(),
+    privateKey: Buffer.from(process.env.VALIDME_PRIVATE_KEY, 'base64').toString('utf8'),
     apiRateLimit: Number.isFinite(apiRateLimit) && apiRateLimit > 0 ? apiRateLimit : 100,
     apiRateWindowMs: Number.isFinite(apiRateWindowMs) && apiRateWindowMs > 0 ? apiRateWindowMs : 60000,
   };
