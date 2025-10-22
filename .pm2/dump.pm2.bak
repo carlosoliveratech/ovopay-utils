@@ -1,0 +1,152 @@
+[
+  {
+    "kill_retry_time": 100,
+    "windowsHide": true,
+    "username": "mern",
+    "treekill": true,
+    "automation": true,
+    "pmx": true,
+    "instance_var": "NODE_APP_INSTANCE",
+    "autorestart": true,
+    "vizion": true,
+    "merge_logs": true,
+    "env": {
+      "SHELL": "/bin/bash",
+      "PWD": "/home/mern/client/build",
+      "LOGNAME": "mern",
+      "HOME": "/home/mern",
+      "LANG": "C.UTF-8",
+      "USER": "mern",
+      "SHLVL": "0",
+      "XDG_DATA_DIRS": "/usr/local/share:/usr/share:/var/lib/snapd/desktop",
+      "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+      "MAIL": "/var/mail/mern",
+      "_": "/usr/bin/pm2",
+      "PM2_USAGE": "CLI",
+      "PM2_INTERACTOR_PROCESSING": "true",
+      "PM2_SERVE_SPA": true,
+      "PM2_SERVE_PATH": "/home/mern/client/build",
+      "PM2_SERVE_PORT": "3000",
+      "PM2_HOME": "/home/mern/.pm2",
+      "sample_mern_app": {},
+      "unique_id": "3942ea6a-4478-477e-b90f-fcd8130cac8a"
+    },
+    "cwd": "/home/mern/client/build",
+    "namespace": "default",
+    "name": "sample_mern_app",
+    "node_args": [],
+    "pm_exec_path": "/usr/lib/node_modules/pm2/lib/API/Serve.js",
+    "pm_cwd": "/home/mern/client/build",
+    "exec_interpreter": "node",
+    "exec_mode": "fork_mode",
+    "pm_out_log_path": "/home/mern/.pm2/logs/sample-mern-app-out.log",
+    "pm_err_log_path": "/home/mern/.pm2/logs/sample-mern-app-error.log",
+    "pm_pid_path": "/home/mern/.pm2/pids/sample-mern-app-0.pid",
+    "km_link": false,
+    "vizion_running": false,
+    "NODE_APP_INSTANCE": 0,
+    "SHELL": "/bin/bash",
+    "PWD": "/home/mern/client/build",
+    "LOGNAME": "mern",
+    "HOME": "/home/mern",
+    "LANG": "C.UTF-8",
+    "USER": "mern",
+    "SHLVL": "0",
+    "XDG_DATA_DIRS": "/usr/local/share:/usr/share:/var/lib/snapd/desktop",
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+    "MAIL": "/var/mail/mern",
+    "_": "/usr/bin/pm2",
+    "PM2_USAGE": "CLI",
+    "PM2_INTERACTOR_PROCESSING": "true",
+    "PM2_SERVE_SPA": true,
+    "PM2_SERVE_PATH": "/home/mern/client/build",
+    "PM2_SERVE_PORT": "3000",
+    "PM2_HOME": "/home/mern/.pm2",
+    "unique_id": "3942ea6a-4478-477e-b90f-fcd8130cac8a",
+    "status": "online",
+    "pm_uptime": 1678236069664,
+    "axm_actions": [
+      {
+        "action_name": "km:heapdump",
+        "action_type": "internal",
+        "arity": 2
+      },
+      {
+        "action_name": "km:cpu:profiling:start",
+        "action_type": "internal",
+        "arity": 2
+      },
+      {
+        "action_name": "km:cpu:profiling:stop",
+        "action_type": "internal",
+        "arity": 1
+      },
+      {
+        "action_name": "km:heap:sampling:start",
+        "action_type": "internal",
+        "arity": 2
+      },
+      {
+        "action_name": "km:heap:sampling:stop",
+        "action_type": "internal",
+        "arity": 1
+      }
+    ],
+    "axm_monitor": {
+      "Used Heap Size": {
+        "value": "7.27",
+        "type": "internal/v8/heap/used",
+        "unit": "MiB",
+        "historic": true
+      },
+      "Heap Usage": {
+        "value": 66.01,
+        "type": "internal/v8/heap/usage",
+        "unit": "%",
+        "historic": true
+      },
+      "Heap Size": {
+        "value": "11.02",
+        "type": "internal/v8/heap/total",
+        "unit": "MiB",
+        "historic": true
+      }
+    },
+    "axm_options": {
+      "error": true,
+      "heapdump": true,
+      "feature.profiler.heapsnapshot": false,
+      "feature.profiler.heapsampling": true,
+      "feature.profiler.cpu_js": true,
+      "latency": true,
+      "catchExceptions": true,
+      "profiling": true,
+      "metrics": {
+        "http": true,
+        "runtime": true,
+        "eventLoop": true,
+        "network": false,
+        "v8": true
+      },
+      "standalone": false,
+      "tracing": {
+        "outbound": false,
+        "enabled": false
+      },
+      "module_conf": {},
+      "apm": {
+        "version": "5.0.0",
+        "type": "node"
+      },
+      "module_name": "sample_mern_app",
+      "module_version": "5.2.2"
+    },
+    "axm_dynamic": {},
+    "created_at": 1678236069664,
+    "restart_time": 0,
+    "unstable_restarts": 0,
+    "version": "5.2.2",
+    "versioning": null,
+    "node_version": "19.7.0"
+  }
+]
